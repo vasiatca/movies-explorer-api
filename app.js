@@ -13,7 +13,9 @@ const limiter = require('./utils/limiter');
 const app = express();
 
 const corsOptions = {
-  origin: 'https://api.vasiatca.nomoredomains.sbs',
+  // origin: 'https://api.vasiatca.nomoredomains.sbs',
+  origin: 'http://localhost:3001',
+
   optionsSuccessStatus: 200,
   credentials: true,
 };

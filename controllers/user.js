@@ -4,6 +4,7 @@ const User = require('../models/user');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
+const CastError = require('../errors/CastError');
 const { JWT_SECRET } = require('../utils/config');
 
 module.exports.getMyUser = (req, res, next) => {
@@ -62,8 +63,13 @@ module.exports.editUser = (req, res, next) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError('Ошибка при обновлении пользователя'));
+        throw new ValidationError('Ошибка при обновлении пользователя');
+      } if (err.name === 'CastError') {
+        throw new CastError('Переданы некорректные данные');
+      } if (err.codeName === 'DuplicateKey') {
+        throw new ConflictError('Пользователь с таким email уже существует');
       }
-      next(err);
-    });
+      throw err;
+    })
+    .catch(next);
 };
