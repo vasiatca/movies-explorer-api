@@ -37,7 +37,4 @@ app.use(errorLogger);
 app.use(errors());
 app.use(errorsHandler);
 
-app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`Server started on http://localhost:${PORT}`);
-});
+app.listen(PORT);
