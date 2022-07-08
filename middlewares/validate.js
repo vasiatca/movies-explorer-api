@@ -1,13 +1,14 @@
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 const ValidationError = require('../errors/ValidationError');
+const { validationUrlErrMsg } = require('../utils/errorMessages');
 
 const checkURL = (value) => {
   const result = validator.isURL(value);
   if (result) {
     return value;
   }
-  throw new ValidationError('Некорректная ссылка');
+  throw new ValidationError(validationUrlErrMsg);
 };
 
 module.exports.validateLogin = celebrate({
@@ -42,9 +43,9 @@ module.exports.validateCreateMovie = celebrate({
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
     image: Joi.string().required().custom(checkURL),
-    trailer: Joi.string().required().custom(checkURL),
+    trailerLink: Joi.string().required().custom(checkURL),
     thumbnail: Joi.string().required().custom(checkURL),
-    movieId: Joi.string().min(1).required(),
+    movieId: Joi.number().min(1).required(),
   }),
 });
 

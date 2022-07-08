@@ -7,9 +7,16 @@ const ValidationError = require('../errors/ValidationError');
 const CastError = require('../errors/CastError');
 const { JWT_SECRET } = require('../utils/config');
 
+const {
+  userNotFoundMsg,
+  userConflictMsg,
+  validationErrMsg,
+  castErrMsg,
+} = require('../utils/errorMessages');
+
 module.exports.getMyUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(() => new NotFoundError('Пользователь не найден'))
+    .orFail(() => new NotFoundError(userNotFoundMsg))
     .then((user) => res.send({ data: user }))
     .catch((err) => next(err));
 };
@@ -22,7 +29,7 @@ module.exports.createUser = (req, res, next) => {
   User.findOne({ email })
     .then((u) => {
       if (u) {
-        throw new ConflictError('Пользователь с таким email уже существует');
+        throw new ConflictError(userConflictMsg);
       }
       bcrypt.hash(password, 10)
         .then((hash) => User.create({
@@ -35,7 +42,7 @@ module.exports.createUser = (req, res, next) => {
         }))
         .catch((err) => {
           if (err.name === 'ValidationError') {
-            next(new ValidationError('Ошибка при создании пользователя'));
+            next(new ValidationError(validationErrMsg));
           } else {
             next(err);
           }
@@ -59,15 +66,15 @@ module.exports.editUser = (req, res, next) => {
   const { name, email } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { name, email }, { new: true, runValidators: true })
-    .orFail(() => new NotFoundError('Пользователь не найден'))
+    .orFail(() => new NotFoundError(userNotFoundMsg))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new ValidationError('Ошибка при обновлении пользователя');
+        throw new ValidationError(validationErrMsg);
       } if (err.name === 'CastError') {
-        throw new CastError('Переданы некорректные данные');
+        throw new CastError(castErrMsg);
       } if (err.codeName === 'DuplicateKey') {
-        throw new ConflictError('Пользователь с таким email уже существует');
+        throw new ConflictError(userConflictMsg);
       }
       throw err;
     })
