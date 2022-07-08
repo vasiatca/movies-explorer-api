@@ -7,10 +7,13 @@ const { errors } = require('celebrate');
 const { MONGO_URL, PORT } = require('./utils/config');
 const errorsHandler = require('./middlewares/errorsHandler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const router = require('./routes/index');
 const limiter = require('./utils/limiter');
+const router = require('./routes/index');
 
 const app = express();
+
+app.use(requestLogger);
+app.use(limiter);
 
 const corsOptions = {
   origin: 'https://api.vasiatca.nomoredomains.sbs',
@@ -28,9 +31,6 @@ mongoose.connect(MONGO_URL, {
   useUnifiedTopology: true,
 });
 
-app.use(requestLogger);
-
-app.use(limiter);
 app.use(router);
 
 app.use(errorLogger);
